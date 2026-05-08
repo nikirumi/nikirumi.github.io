@@ -39,15 +39,22 @@
                 <li><a href="#contact" class="nav-link">Contact</a></li>
             </ul>
 
-            <!-- CTA Button (desktop) -->
-            <a href="#contact" class="navbar__cta btn btn--amber">Contact me</a>
+            <div class="navbar__actions">
+                <!-- CTA Button (desktop) -->
+                <a href="#contact" class="navbar__cta btn btn--amber">Contact me</a>
 
-            <!-- Hamburger Menu (mobile) -->
-            <button class="navbar__hamburger" id="hamburger" aria-label="Toggle navigation menu">
-                <span class="bar"></span>
-                <span class="bar"></span>
-                <span class="bar"></span>
-            </button>
+                <!-- Dark mode toggle -->
+                <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to dark mode" aria-pressed="false">
+                    <i class="fas fa-moon"></i>
+                </button>
+
+                <!-- Hamburger Menu (mobile) -->
+                <button class="navbar__hamburger" id="hamburger" aria-label="Toggle navigation menu">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </button>
+            </div>
         </div>
 
         <!-- Mobile Menu Overlay -->
@@ -99,7 +106,7 @@
             <!-- Right Column: Portrait Image -->
             <div class="hero__image reveal">
                 <div class="hero__image-wrapper">
-                    <img src="images/ivan-img-new-portrait-2.png" alt="Ivan Jethro — Full Stack Developer" class="hero__portrait">
+                    <img src="images/ivan-img-new-portrait-2.png" alt="Ivan Jethro — Full Stack Developer" class="hero__portrait" data-light="images/ivan-img-new-portrait-2.png" data-dark="images/ivan-img-new-portrait-dark.png">
                 </div>
             </div>
         </div>

@@ -23,11 +23,103 @@ document.addEventListener('DOMContentLoaded', () => {
     const projectModalDescription = document.getElementById('projectModalDescription');
     const projectModalTags = document.getElementById('projectModalTags');
     const projectModalActions = document.getElementById('projectModalActions');
+    const themeToggle = document.getElementById('themeToggle');
+    const heroPortrait = document.querySelector('.hero__portrait');
 
     // mobile overlay for when menu is open
     const overlay = document.createElement('div');
     overlay.classList.add('mobile-overlay');
     document.body.appendChild(overlay);
+
+
+    // -----------------------------------------------------------
+    // 0. THEME TOGGLE: Dark mode
+    // -----------------------------------------------------------
+    const themeStorageKey = 'theme';
+    const root = document.documentElement;
+    const heroLightSrc = heroPortrait?.dataset.light || heroPortrait?.getAttribute('src');
+    const heroDarkSrc = heroPortrait?.dataset.dark;
+    const heroSwapDelay = 160;
+    const heroSwapFallback = 520;
+    let heroSwapTimer = null;
+
+    const swapHeroPortrait = (nextSrc, animate = true) => {
+        if (!heroPortrait || !nextSrc) return;
+        if (heroPortrait.getAttribute('src') === nextSrc) return;
+
+        if (!animate) {
+            heroPortrait.setAttribute('src', nextSrc);
+            return;
+        }
+
+        heroPortrait.classList.add('is-fading');
+        if (heroSwapTimer) {
+            clearTimeout(heroSwapTimer);
+        }
+
+        heroSwapTimer = window.setTimeout(() => {
+            heroPortrait.setAttribute('src', nextSrc);
+        }, heroSwapDelay);
+
+        const handleLoad = () => {
+            heroPortrait.classList.remove('is-fading');
+        };
+
+        heroPortrait.addEventListener('load', handleLoad, { once: true });
+
+        window.setTimeout(() => {
+            heroPortrait.classList.remove('is-fading');
+        }, heroSwapFallback);
+    };
+
+    const updateHeroPortrait = (theme, animate = true) => {
+        if (!heroPortrait) return;
+        const nextSrc = theme === 'dark' && heroDarkSrc ? heroDarkSrc : heroLightSrc;
+        swapHeroPortrait(nextSrc, animate);
+    };
+
+    const updateThemeToggle = (theme) => {
+        if (!themeToggle) return;
+        const icon = themeToggle.querySelector('i');
+        const isDark = theme === 'dark';
+
+        themeToggle.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+        themeToggle.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+
+        if (icon) {
+            icon.classList.toggle('fa-moon', !isDark);
+            icon.classList.toggle('fa-sun', isDark);
+        }
+    };
+
+    const applyTheme = (theme, persist = true, animate = true) => {
+        root.setAttribute('data-theme', theme);
+        if (persist) {
+            localStorage.setItem(themeStorageKey, theme);
+        }
+
+        updateThemeToggle(theme);
+        updateHeroPortrait(theme, animate);
+    };
+
+    const storedTheme = localStorage.getItem(themeStorageKey);
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const initialTheme = storedTheme || (prefersDark ? 'dark' : 'light');
+
+    applyTheme(initialTheme, Boolean(storedTheme), false);
+
+    if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+            applyTheme(currentTheme === 'dark' ? 'light' : 'dark', true, true);
+        });
+    }
+
+    const prefersQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    prefersQuery.addEventListener('change', (event) => {
+        if (localStorage.getItem(themeStorageKey)) return;
+        applyTheme(event.matches ? 'dark' : 'light', false, false);
+    });
 
 
     // -----------------------------------------------------------
