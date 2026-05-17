@@ -21,6 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const projectModalClose = document.getElementById('projectModalClose');
     const projectModalTitle = document.getElementById('projectModalTitle');
     const projectModalDescription = document.getElementById('projectModalDescription');
+    const projectModalModels = document.getElementById('projectModalModels');
+    const projectModalModelList = document.getElementById('projectModalModelList');
     const projectModalTags = document.getElementById('projectModalTags');
     const projectModalActions = document.getElementById('projectModalActions');
     const themeToggle = document.getElementById('themeToggle');
@@ -272,6 +274,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // -----------------------------------------------------------
     // 6. CONTACT FORM HANDLING
     // -----------------------------------------------------------
+    const charCountFields = document.querySelectorAll('.form-group input[maxlength], .form-group textarea[maxlength]');
+    const updateCharCount = (field) => {
+        const max = field.getAttribute('maxlength');
+        const counter = field.parentElement.querySelector('.char-count');
+        if (!counter || !max) return;
+        counter.textContent = `${field.value.length}/${max}`;
+    };
+
+    charCountFields.forEach(field => {
+        updateCharCount(field);
+        field.addEventListener('input', () => updateCharCount(field));
+    });
+
     if (contactForm) {
         contactForm.addEventListener('submit', async function (e) {
             e.preventDefault();
@@ -340,6 +355,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (response.ok) {
                     renderFormMessage('success', 'Thank you! Your message has been sent. I\'ll get back to you soon.');
                     form.reset();
+                    charCountFields.forEach(field => updateCharCount(field));
                 } else {
                     renderFormMessage('error', 'Message failed to send. Please try again in a moment.');
                 }
@@ -690,6 +706,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const frontImage = card.querySelector('.project-card__image img');
         const deploymentLink = card.getAttribute('data-deployment-url')?.trim() || '';
         const extraImagesAttr = card.getAttribute('data-images')?.trim() || '';
+        const modelsAttr = card.getAttribute('data-models')?.trim() || '';
 
         // Build image list: front image + any extras from data-images (comma-separated)
         const imageList = [];
@@ -707,6 +724,40 @@ document.addEventListener('DOMContentLoaded', () => {
         // Populate text content
         projectModalTitle.textContent = title;
         projectModalDescription.textContent = description;
+
+        if (projectModalModels && projectModalModelList) {
+            projectModalModelList.innerHTML = '';
+
+            if (modelsAttr) {
+                const delimiter = modelsAttr.includes('||') ? '||' : ',';
+                const models = modelsAttr.split(delimiter).map(model => model.trim()).filter(Boolean);
+
+                models.forEach((model) => {
+                    const item = document.createElement('li');
+                    item.className = 'project-modal__model-item';
+
+                    const colonIndex = model.indexOf(':');
+                    const keyText = colonIndex >= 0 ? model.slice(0, colonIndex).trim() : '';
+                    const valueText = colonIndex >= 0 ? model.slice(colonIndex + 1).trim() : model;
+
+                    const key = document.createElement('span');
+                    key.className = 'project-modal__model-key';
+                    key.textContent = keyText || 'Model';
+
+                    const value = document.createElement('span');
+                    value.className = 'project-modal__model-value';
+                    value.textContent = valueText || '';
+
+                    item.appendChild(key);
+                    item.appendChild(value);
+                    projectModalModelList.appendChild(item);
+                });
+
+                projectModalModels.hidden = models.length === 0;
+            } else {
+                projectModalModels.hidden = true;
+            }
+        }
 
         projectModalTags.innerHTML = '';
         tags.forEach(tagText => {
